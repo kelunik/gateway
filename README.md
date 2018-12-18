@@ -5,7 +5,7 @@ Gateway is an HTTP server that can be used to replace the built-in PHP web serve
 ## Usage
 
 ```bash
-php  -dzend.assertions=-1 bin/server.php -d $PWD/public -s $PWD/public/index.php -e development
+php -dzend.assertions=-1 bin/gateway -d $PWD/public -s $PWD/public/index.php -e development
 ```
 
 ## Security

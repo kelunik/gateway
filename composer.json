@@ -24,5 +24,8 @@
         "psr-4": {
             "Kelunik\\Gateway\\": "src"
         }
-    }
+    },
+    "bin": [
+        "bin/gateway"
+    ]
 }

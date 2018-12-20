@@ -1,6 +1,7 @@
 {
     "name": "kelunik/gateway",
     "require": {
+        "ext-pcntl": "*",
         "amphp/amp": "^2.1",
         "amphp/http-server": "^1.0",
         "amphp/http-server-static-content": "^1.0",

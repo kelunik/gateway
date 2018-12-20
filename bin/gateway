@@ -96,6 +96,7 @@ Loop::run(function () use ($climate) {
     $logger->pushHandler($streamHandler);
 
     $server = new Server($sockets, stack($requestHandler, new AccessLogMiddleware($logger)), $logger, $serverOptions);
+    $server->attach($staticFileHandler);
 
     yield $server->start();
 

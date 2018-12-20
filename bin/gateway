@@ -19,7 +19,27 @@ use Psr\Log\LogLevel;
 use function Amp\ByteStream\getStdout;
 use function Amp\Http\Server\Middleware\stack;
 
-require __DIR__ . '/../vendor/autoload.php';
+(function () {
+    $paths = [
+        dirname(__DIR__, 3) . "/autoload.php",
+        dirname(__DIR__) . "/vendor/autoload.php",
+    ];
+    
+    foreach ($paths as $path) {
+        if (file_exists($path)) {
+            $autoloadPath = $path;
+            break;
+        }
+    }
+    
+    if (!isset($autoloadPath)) {
+        fwrite(STDERR, "Could not locate autoload.php" . PHP_EOL);
+        exit(1);
+    }
+    
+    require $autoloadPath;
+})();
+
 
 $climate = new CLImate;
 $climate->arguments->add([

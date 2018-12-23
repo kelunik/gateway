@@ -11,7 +11,9 @@ use Amp\Promise;
 use Amp\Sync\LocalSemaphore;
 use Amp\Sync\Lock;
 use function Amp\ByteStream\buffer;
+use function Amp\ByteStream\getStderr;
 use function Amp\call;
+use function Amp\Promise\rethrow;
 
 final class CgiRequestHandler implements RequestHandler
 {
@@ -85,9 +87,10 @@ final class CgiRequestHandler implements RequestHandler
                 $errors = yield buffer($process->getStderr());
 
                 $exitStatus = yield $process->join();
+                rethrow(getStderr()->write($errors));
 
                 if ($exitStatus !== 0) {
-                    throw new \RuntimeException('Invalid exit code: ' . $exitStatus . "\r\n" . $errors);
+                    throw new \RuntimeException('Invalid exit code from php-cgi: ' . $exitStatus);
                 }
 
                 list($rawHeaders, $responseBody) = \preg_split('(\r?\n\r?\n)', $response, 2) + [null, null];

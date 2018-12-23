@@ -24,19 +24,19 @@ use function Amp\Http\Server\Middleware\stack;
         dirname(__DIR__, 3) . "/autoload.php",
         dirname(__DIR__) . "/vendor/autoload.php",
     ];
-    
+
     foreach ($paths as $path) {
         if (file_exists($path)) {
             $autoloadPath = $path;
             break;
         }
     }
-    
+
     if (!isset($autoloadPath)) {
         fwrite(STDERR, "Could not locate autoload.php" . PHP_EOL);
         exit(1);
     }
-    
+
     require $autoloadPath;
 })();
 
@@ -84,9 +84,22 @@ Loop::run(function () use ($climate) {
     $environment = $climate->arguments->get('environment');
     $listenAddrs = \array_map('trim', \explode(',', $climate->arguments->get('listen')));
 
+    $streamHandler = new StreamHandler(getStdout(), LogLevel::INFO);
+    $streamHandler->setFormatter(new ConsoleFormatter(null, null, true, false));
+    $streamHandler->pushProcessor(new PsrLogMessageProcessor);
+
+    $logger = new Logger('server');
+    $logger->pushHandler($streamHandler);
+
     $sockets = [];
     foreach ($listenAddrs as $listenAddr) {
-        $sockets[] = Socket\listen($listenAddr);
+        try {
+            $sockets[] = Socket\listen($listenAddr);
+        } catch (Socket\SocketException $e) {
+            $logger->error($e->getMessage());
+            $logger->error('Server startup failed, terminating now.');
+            exit(1);
+        }
     }
 
     $serverOptions = new Options;
@@ -107,13 +120,6 @@ Loop::run(function () use ($climate) {
 
         return $staticFileHandler->handleRequest($request);
     });
-
-    $streamHandler = new StreamHandler(getStdout(), LogLevel::INFO);
-    $streamHandler->setFormatter(new ConsoleFormatter(null, null, true, false));
-    $streamHandler->pushProcessor(new PsrLogMessageProcessor);
-
-    $logger = new Logger('server');
-    $logger->pushHandler($streamHandler);
 
     $server = new Server($sockets, stack($requestHandler, new AccessLogMiddleware($logger)), $logger, $serverOptions);
     $server->attach($staticFileHandler);

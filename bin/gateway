@@ -55,7 +55,7 @@ $climate->arguments->add([
         'description' => 'Document root path.',
         'required' => true,
     ],
-    'envionment' => [
+    'environment' => [
         'prefix' => 'e',
         'longPrefix' => 'environment',
         'description' => 'Environment, e.g. "development" / "production"',
